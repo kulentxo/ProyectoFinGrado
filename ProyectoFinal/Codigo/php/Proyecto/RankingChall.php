@@ -82,15 +82,21 @@
 					<th>Perdidas</th>
 				</tr>
 				<?php
-
+				#La key de la api que se necesita actualizar todos los dias para que funcione
 				$api_key = "RGAPI-98dd23ed-bb04-4770-bba1-1ae196002564";
-
+				#La url proporcionada en la pagina
 				$api_ranking = "https://euw1.api.riotgames.com/lol/league-exp/v4/entries/RANKED_SOLO_5x5/CHALLENGER/I?page=1&api_key=" . $api_key;
+				#Extraer los datos de la api
 				$ranking_data = file_get_contents($api_ranking);
+				#Pasar los datos extraidos a json
 				$json_ranking = json_decode($ranking_data, TRUE);
+				#Foreach para ir por todos los datos que hay en el array
 				foreach($json_ranking as $id => $data){
+					#echo tr para hacer la tabla en html
 					echo "<tr>";
+					#otro foreach porque despues de la principal seguido hay otro array
 					foreach($data as $id2 => $data2){
+						#switch para sacar los datos por el id
 						switch($id2){
 							case 'tier':
 								echo "<td>";

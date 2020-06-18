@@ -1,23 +1,24 @@
 <?php
+#Desde index.php paso el username que a escrito en el buscador y lo guardo en una variable
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$username = $_POST['username'];
-		
+	#La key de la api que se necesita actualizar todos los dias para que funcione
 	$api_key = "RGAPI-98dd23ed-bb04-4770-bba1-1ae196002564";
-							
+	#La url proporcionada en la pagina						
 	$api_url_summoner = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" . $username . "?api_key=" . $api_key;
+	#Extraer los datos de la api
 	$summoner_data = file_get_contents($api_url_summoner);
+	#Pasar los datos extraidos a json
 	$json_summoner = json_decode($summoner_data, TRUE);
-
-		
-
+	#guardar datos del json en una variable
 	$summoner_lvl = $json_summoner['summonerLevel'];
 	$summoner_accountId = $json_summoner['accountId'];
-
+	#Mismo proceso que el anterior
 	$api_url_match = "https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/" . $summoner_accountId . "?api_key=" . $api_key;
 	$match_data = file_get_contents($api_url_match);
 	$json_match = json_decode($match_data, TRUE);
 	$match_array = $json_match['matches'];
-
+	#inicializar arrays vacios
 	$gameId_array = array();
 	$champion = array();
 	$spell1 = array();
@@ -26,7 +27,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	$deaths = array();
 	$assits = array();
 	$partid = array();
-
+	#Utilizar el for para sacar los gameId de cada partida
 	for($x = 0; $x <= count($match_array); $x++){
 		foreach($match_array as $id1=>$match){
 			foreach($match as $id=>$data){
@@ -35,11 +36,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 				}
 			}
 		}
-	}	
+	}
+	#Este for se limita para que solo utilice datos de 4 partidas	
 	for($x = 0; $x <= 3; $x++){
+		#Mismo proceso que las anteriores
 			$api_url_match_info = "https://euw1.api.riotgames.com/lol/match/v4/matches/" . $gameId_array[$x] . "?api_key=" . $api_key;
 			$match_info_data = file_get_contents($api_url_match_info);
 			$json_match_info = json_decode($match_info_data, TRUE);
+			#sacar el id correcto del username especificado en el index
 			foreach ($json_match_info as $id => $data) {
 				if($id == "participantIdentities"){
 					$num = 0;
@@ -59,10 +63,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 			}
 	}
 	$idbueno = "";
+	#Este for se limita para que solo utilice datos de 4 partidas
 	for($x = 0; $x <= 3; $x++){
+		#Mismo proceso que las anteriores
 		$api_url_match_info = "https://euw1.api.riotgames.com/lol/match/v4/matches/" . $gameId_array[$x] . "?api_key=" . $api_key;
 		$match_info_data = file_get_contents($api_url_match_info);
 		$json_match_info = json_decode($match_info_data, TRUE);
+		#Con el idbueno guardar otra vez el id correcto porque necesito buscar entre 10 jugadores
 		foreach ($json_match_info as $id => $data) {	
 			if($id == "participants"){
 					foreach ($data as $id3 => $datapartid2) {
@@ -72,6 +79,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 											$idbueno = $datapartid3;
 										}
 								}
+								#sacar los datos correctos del username especificado arriba
 								if($idbueno != ''){
 									switch ($id4) {
 										case 'championId':
